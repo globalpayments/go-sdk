@@ -34,6 +34,7 @@ type IDeviceInterface interface {
 	TipAdjust(amount *decimal.Decimal) (*builders.TerminalManageBuilder, error)
 	Ping() (IDeviceResponse, error)
 	PromptForSignature() (ISignatureResponse, error)
+	PreAuthDelete(referenceNumber string, amount *decimal.Decimal) (IDeviceResponse, error)
 	AddLineItem(leftText string, rightText string) (IDeviceResponse, error)
 	AddLineItemBulk(lineItems [][2]string) (IDeviceResponse, error)
 	CancelWithParam(val int) error

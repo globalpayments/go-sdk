@@ -1,6 +1,7 @@
 package upa
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/globalpayments/go-sdk/api"
@@ -19,7 +20,7 @@ func TestUpaGiftTests(t *testing.T) {
 
 	config := terminals.NewConnectionConfig()
 	config.Port = 8081
-	config.IpAddress = "192.168.12.197"
+	config.IpAddress = "192.168.12.217"
 	config.Timeout = 45000
 	config.RequestIdProvider = hpa.NewRandomIdProvider()
 	config.DeviceType = devicetype.UPA_DEVICE
@@ -58,4 +59,8 @@ func giftAddValue(t *testing.T, device abstractions.IDeviceInterface) {
 	if unmasked != target {
 		t.Errorf("Gift card number incorrect. Wanted: %s Actual: %s", target, unmasked)
 	}
+	//v2.18 updates
+	fmt.Printf("fallback: %v\n", response.GetFallback())
+	fmt.Printf("serviceCode: %v\n", response.GetServiceCode())
+	fmt.Printf("expiry %v", response.GetExpirationDate())
 }

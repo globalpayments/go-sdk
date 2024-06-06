@@ -18,7 +18,7 @@ func TestUpaCreditTests(t *testing.T) {
 
 	config := terminals.NewConnectionConfig()
 	config.Port = 8081
-	config.IpAddress = "192.168.12.197"
+	config.IpAddress = "192.168.12.217"
 	config.Timeout = 45000
 	config.RequestIdProvider = hpa.NewRandomIdProvider()
 	config.DeviceType = devicetype.UPA_DEVICE
@@ -39,6 +39,7 @@ func TestUpaCreditTests(t *testing.T) {
 	creditVoidTerminalTrans(t, device)
 	creditCancelledTrans(t, device)
 	creditBlindRefund(t, device)
+	creditDeletePreAuths(t, device)
 	incrementalAuths(t, device)
 	tipAdjust(t, device)
 }
@@ -138,6 +139,42 @@ func creditCancelledTrans(t *testing.T, device abstractions.IDeviceInterface) {
 
 	if response.GetDeviceResponseText() != "TRANSACTION CANCELLED BY USER" {
 		t.Errorf("Device response text expected TRANSACTION CANCELLED BY USER but got %s", response.GetDeviceResponseText())
+	}
+}
+
+func creditDeletePreAuths(t *testing.T, device abstractions.IDeviceInterface) {
+	// Initial authorization amount
+	amount1, _ := stringutils.ToDecimalAmount("10.00")
+	terminal1, err := device.CreditAuth(amount1)
+	if err != nil {
+		t.Errorf("Initial credit authorization setup failed with error: %s", err.Error())
+		return
+	}
+	response1, err := api.ExecuteTerminal(terminal1)
+	if err != nil {
+		t.Errorf("Initial credit authorization failed with error: %s", err.Error())
+		return
+	}
+
+	// Ensure that the first transaction response is not nil
+	if response1 == nil {
+		t.Errorf("First transaction did not complete")
+		return
+	}
+
+	response2, err := device.PreAuthDelete(response1.GetTransactionId(), amount1)
+	if err != nil {
+		t.Errorf("Authorization delete failed with error: %s", err.Error())
+		return
+	}
+
+	// Ensure that the first transaction response is not nil
+	if response2 == nil {
+		t.Errorf("Second transaction (auth delete) did not complete")
+		return
+	}
+	if response2.GetDeviceResponseCode() != "00" {
+		t.Errorf("Device response code expected 00 but got %s", response2.GetDeviceResponseCode())
 	}
 }
 

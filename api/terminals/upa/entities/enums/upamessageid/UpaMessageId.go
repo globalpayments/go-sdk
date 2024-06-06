@@ -23,6 +23,7 @@ const (
 	GetSignature         UpaMessageId = "GetSignature"
 	Ping                 UpaMessageId = "Ping"
 	PreAuth              UpaMessageId = "PreAuth"
+	DeletePreAuth        UpaMessageId = "DeletePreAuth"
 	Restart              UpaMessageId = "Restart"
 	AuthCompletion       UpaMessageId = "AuthCompletion"
 	StartCardTransaction UpaMessageId = "StartCardTransaction"

@@ -367,6 +367,37 @@ func (ui *UpaInterface) SafDelete(referenceNumber string, transactionNumber stri
 	return responses.NewUpaSafResponse(responseObj), nil
 }
 
+func (ui *UpaInterface) PreAuthDelete(referenceNumber string, amount *decimal.Decimal) (abstractions.IDeviceResponse, error) {
+	body := utils.NewJsonDoc()
+	transaction := utils.NewJsonDoc()
+
+	if referenceNumber != "" {
+		transaction.Set("referenceNumber", referenceNumber, true)
+	}
+	if amount != nil {
+		transaction.Set("preAuthAmount", amount.StringFixed(2), true)
+	}
+	body.SetJsonDoc("transaction", transaction)
+
+	message, err := terminalutilities.BuildMessage(upamessageid.DeletePreAuth, strconv.Itoa(ui.controller.GetRequestIdProvider().GetRequestId()), "", body)
+	if err != nil {
+		return nil, err
+	}
+
+	message.SetAwaitResponse(true)
+	resp, err := ui.controller.Send(message)
+
+	if err != nil {
+		return nil, err
+	}
+
+	responseObj, err := utils.ParseBytes(resp)
+	if err != nil {
+		return nil, err
+	}
+	return responses.NewUpaDeviceResponse(*responseObj, upamessageid.DeletePreAuth), nil
+}
+
 func (ui *UpaInterface) SafSummaryReport() (abstractions.ISAFResponse, error) {
 	body := utils.NewJsonDoc()
 	param := utils.NewJsonDoc()

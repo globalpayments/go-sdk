@@ -99,4 +99,10 @@ type ITerminalResponse interface {
 	SetCardBrandTransactionId(cardBrandTransactionId string)
 	GetUnmaskedCardNumber() string
 	SetUnmaskedCardNumber(string)
+	GetTransactionStatusInfo() string
+	SetTransactionStatusInfo(status string)
+	GetFallback() string
+	SetFallback(fb string)
+	GetServiceCode() string
+	SetServiceCode(fb string)
 }

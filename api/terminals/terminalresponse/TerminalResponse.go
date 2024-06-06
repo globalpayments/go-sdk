@@ -26,9 +26,12 @@ type TerminalResponse struct {
 	Token              string `json:"token"`
 	SignatureStatus    string `json:"signatureStatus"`
 	SignatureData      []byte `json:"signatureData"`
+	Fallback           string `json:"fallback"`
+	ServiceCode        string `json:"serviceCode"`
 
 	// Transactional
 	TransactionType        string            `json:"transactionType"`
+	TransactionStatusInfo  string            `json:"transactionStatusInfo"`
 	MaskedCardNumber       string            `json:"maskedCardNumber"`
 	EntryMethod            string            `json:"entryMethod"`
 	AuthorizationCode      string            `json:"authorizationCode"`
@@ -79,6 +82,14 @@ func (tr *TerminalResponse) GetStatus() string {
 
 func (tr *TerminalResponse) SetStatus(status string) {
 	tr.Status = status
+}
+
+func (tr *TerminalResponse) GetTransactionStatusInfo() string {
+	return tr.TransactionStatusInfo
+}
+
+func (tr *TerminalResponse) SetTransactionStatusInfo(status string) {
+	tr.TransactionStatusInfo = status
 }
 
 func (tr *TerminalResponse) GetCommand() string {
@@ -423,6 +434,22 @@ func (tr *TerminalResponse) GetCardType() cardtype.CardType {
 
 func (tr *TerminalResponse) SetCardType(cardType cardtype.CardType) {
 	tr.CardType = cardType
+}
+
+func (tr *TerminalResponse) GetFallback() string {
+	return tr.Fallback
+}
+
+func (tr *TerminalResponse) SetFallback(fb string) {
+	tr.Fallback = fb
+}
+
+func (tr *TerminalResponse) GetServiceCode() string {
+	return tr.ServiceCode
+}
+
+func (tr *TerminalResponse) SetServiceCode(fb string) {
+	tr.ServiceCode = fb
 }
 
 func (tr *TerminalResponse) GetCardBrandTransactionId() string {

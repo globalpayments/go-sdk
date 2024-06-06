@@ -93,7 +93,7 @@ func NewUpaTransactionResponse(responseData *utils.JsonDoc) *UpaTransactionRespo
 					res.ApplicationCryptogramType = applicationcryptogramtype.ARQC
 				}
 			}
-
+			res.TransactionStatusInfo = emv.GetString("9B")
 			res.ApplicationId = emv.GetString("9F06")
 			res.ApplicationLabel = emv.GetString("50")
 			res.ApplicationPreferredName = emv.GetString("9F12")
@@ -102,6 +102,18 @@ func NewUpaTransactionResponse(responseData *utils.JsonDoc) *UpaTransactionRespo
 		pan := data.Get("PAN")
 		if pan != nil {
 			res.UnmaskedCardNumber = pan.GetString("clearPAN")
+		}
+		fallback := data.GetString("fallback")
+		if fallback != "" {
+			res.Fallback = fallback
+		}
+		serviceCode := data.GetString("serviceCode")
+		if serviceCode != "" {
+			res.ServiceCode = serviceCode
+		}
+		expirationDate := data.GetString("expiryDate")
+		if expirationDate != "" {
+			res.ExpirationDate = expirationDate
 		}
 
 	}
