@@ -1,22 +1,22 @@
 package builders
 
 import (
-	"github.com/globalpayments/go-sdk/api/builders"
-	"github.com/globalpayments/go-sdk/api/entities"
+	"context"
+	"github.com/globalpayments/go-sdk/api/builders/validations"
+	"github.com/globalpayments/go-sdk/api/entities/base"
 	"github.com/globalpayments/go-sdk/api/entities/enums/currencytype"
 	"github.com/globalpayments/go-sdk/api/entities/enums/paymentmethodtype"
 	"github.com/globalpayments/go-sdk/api/entities/enums/storedcredentialinitiator"
 	"github.com/globalpayments/go-sdk/api/entities/enums/taxtype"
 	"github.com/globalpayments/go-sdk/api/entities/enums/transactiontype"
-	"github.com/globalpayments/go-sdk/api/paymentmethods"
-	"github.com/globalpayments/go-sdk/api/paymentmethods/abstractions"
+	"github.com/globalpayments/go-sdk/api/paymentmethods/references"
 	"github.com/globalpayments/go-sdk/api/terminals/terminalresponse"
 	"github.com/shopspring/decimal"
 )
 
 type TerminalAuthBuilder struct {
 	*TerminalBuilder
-	Address                *entities.Address
+	Address                *base.Address
 	AllowDuplicates        bool
 	Amount                 *decimal.Decimal
 	AuthCode               string
@@ -40,7 +40,7 @@ type TerminalAuthBuilder struct {
 	GiftTransactionType    transactiontype.TransactionType
 }
 
-func (tb *TerminalAuthBuilder) GetAddress() *entities.Address {
+func (tb *TerminalAuthBuilder) GetAddress() *base.Address {
 	return tb.Address
 }
 
@@ -130,7 +130,7 @@ func (tb *TerminalAuthBuilder) WithTokenValue(tokenValue string) *TerminalAuthBu
 	return tb
 }
 
-func (tb *TerminalAuthBuilder) WithAddress(address *entities.Address) *TerminalAuthBuilder {
+func (tb *TerminalAuthBuilder) WithAddress(address *base.Address) *TerminalAuthBuilder {
 	tb.Address = address
 	return tb
 }
@@ -225,20 +225,16 @@ func (tb *TerminalAuthBuilder) WithGiftTransactionType(value transactiontype.Tra
 	return tb
 }
 
-func (tb *TerminalAuthBuilder) Execute(device ITerminalBuilderDevice) (terminalresponse.ITerminalResponse, error) {
-	return tb.ExecuteWithName("default", device)
-}
-
-func (tb *TerminalAuthBuilder) ExecuteWithName(configName string, device ITerminalBuilderDevice) (terminalresponse.ITerminalResponse, error) {
+func (tb *TerminalAuthBuilder) ExecuteWithName(ctx context.Context, configName string, device ITerminalBuilderDevice) (terminalresponse.ITerminalResponse, error) {
 	err := tb.TerminalBuilder.Execute(configName)
 	if err != nil {
 		return nil, err
 	}
-	return device.ProcessTransaction(tb)
+	return device.ProcessTransactionWithContext(ctx, tb)
 }
 
 func (tb *TerminalAuthBuilder) SetupValidations() {
-	tb.Validations = *builders.NewValidations()
+	tb.Validations = *validations.NewValidations()
 	tb.Validations.Of(transactiontype.Sale.LongValue() | transactiontype.Auth.LongValue()).Check("amount").IsNotNull("Amount cannot be empty")
 	tb.Validations.Of(transactiontype.Refund.LongValue()).Check("amount").IsNotNull("Amount cannot be empty")
 	//tb.Validations.Of(transactiontype.Auth.LongValue()).
@@ -274,17 +270,17 @@ func (tb *TerminalAuthBuilder) SetupValidations() {
 
 func (tb *TerminalAuthBuilder) WithTransactionId(value string) *TerminalAuthBuilder {
 	paymentMethod := tb.GetPaymentMethod()
-	if !paymentmethods.IsItATransactionReference(paymentMethod) {
-		paymentMethod = paymentmethods.NewTransactionReference()
+	if !references.IsItATransactionReference(paymentMethod) {
+		paymentMethod = references.NewTransactionReference()
 	}
-	tr := paymentMethod.(*paymentmethods.TransactionReference)
+	tr := paymentMethod.(*references.TransactionReference)
 	tr.SetTransactionId(value)
 	tb.SetPaymentMethod(tr)
 	tb.TransactionId = value
 	return tb
 }
 
-func NewTerminalAuthBuilder(transactionType transactiontype.TransactionType, paymentMethod abstractions.IPaymentMethod) *TerminalAuthBuilder {
+func NewTerminalAuthBuilder(transactionType transactiontype.TransactionType, paymentMethod paymentmethodtype.PaymentMethodType) *TerminalAuthBuilder {
 	return &TerminalAuthBuilder{
 		TerminalBuilder: NewTerminalBuilder(transactionType, paymentMethod),
 	}

@@ -7,6 +7,7 @@ import (
 type PaymentMethodType string
 
 const (
+	Nil         PaymentMethodType = ""
 	Reference   PaymentMethodType = "Reference"
 	Credit      PaymentMethodType = "Credit"
 	Debit       PaymentMethodType = "Debit"

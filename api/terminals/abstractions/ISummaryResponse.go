@@ -1,8 +1,8 @@
 package abstractions
 
 import (
-	"github.com/globalpayments/go-sdk/api/entities"
 	"github.com/globalpayments/go-sdk/api/entities/enums/summarytype"
+	"github.com/globalpayments/go-sdk/api/entities/transactionsummary"
 	"github.com/shopspring/decimal"
 )
 
@@ -13,5 +13,5 @@ type ISummaryResponse interface {
 	GetCount() *int
 	GetSummaryType() summarytype.SummaryType
 	GetTotalAmount() *decimal.Decimal
-	GetTransactions() []entities.TransactionSummary
+	GetTransactions() []transactionsummary.TransactionSummary
 }

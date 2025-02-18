@@ -1,12 +1,16 @@
 package upa
 
 import (
+	"context"
+	"github.com/globalpayments/go-sdk/api/services/deviceservice"
+	"github.com/globalpayments/go-sdk/api/terminals/terminalresponse"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/globalpayments/go-sdk/api"
 	"github.com/globalpayments/go-sdk/api/entities/enums/connectionmodes"
 	"github.com/globalpayments/go-sdk/api/entities/enums/devicetype"
-	"github.com/globalpayments/go-sdk/api/services"
 	"github.com/globalpayments/go-sdk/api/terminals"
 	"github.com/globalpayments/go-sdk/api/terminals/abstractions"
 	"github.com/globalpayments/go-sdk/api/utils/stringutils"
@@ -24,7 +28,7 @@ func TestUpaCreditTests(t *testing.T) {
 	config.DeviceType = devicetype.UPA_DEVICE
 	config.ConnectionMode = connectionmodes.TCP_IP
 
-	device, err := services.DeviceServiceCreate(config)
+	device, err := deviceservice.DeviceServiceCreate(config)
 	if err != nil {
 		t.Errorf("Failed to create device with error: %s", err.Error())
 	}
@@ -36,6 +40,7 @@ func TestUpaCreditTests(t *testing.T) {
 	device.SetOnMessageSent(&ResponseHandler{})
 
 	creditSale(t, device)
+	creditSaleWithContextCancellation(t, device)
 	creditVoidTerminalTrans(t, device)
 	creditCancelledTrans(t, device)
 	creditBlindRefund(t, device)
@@ -64,6 +69,54 @@ func creditSale(t *testing.T, device abstractions.IDeviceInterface) {
 	} else if target.Cmp(*actual) != 0 {
 		t.Errorf("Transaction amount expected %v but got %v", target, actual)
 	}
+}
+
+func creditSaleWithContextCancellation(t *testing.T, device abstractions.IDeviceInterface) {
+	val, err := stringutils.ToDecimalAmount("12.01")
+	if err != nil {
+		t.Fatalf("Failed to convert amount: %v", err)
+	}
+
+	terminal, err := device.CreditSale(val)
+	if err != nil {
+		t.Fatalf("Credit setup failed with error: %s", err.Error())
+	}
+
+	// Create a context with a 10-second timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Create a channel to receive the result of ExecuteTerminalWithContext
+	resultChan := make(chan struct {
+		response terminalresponse.ITerminalResponse
+		err      error
+	})
+
+	// Start ExecuteTerminalWithContext in a goroutine
+	go func() {
+		response, err := api.ExecuteTerminalWithContext(ctx, terminal)
+		resultChan <- struct {
+			response terminalresponse.ITerminalResponse
+			err      error
+		}{response, err}
+	}()
+
+	// Wait for 5 seconds, then cancel the context
+	time.Sleep(5 * time.Second)
+	cancel()
+
+	// Wait for the result
+	select {
+	case result := <-resultChan:
+		if result.err == nil {
+			t.Errorf("Expected an error due to cancellation, but got nil")
+		} else if !strings.Contains(result.err.Error(), "context canceled") {
+			t.Errorf("Expected a context cancellation error, but got: %v", result.err)
+		}
+	case <-time.After(15 * time.Second):
+		t.Errorf("Test timed out waiting for ExecuteTerminalWithContext to return")
+	}
+
 }
 
 func creditBlindRefund(t *testing.T, device abstractions.IDeviceInterface) {

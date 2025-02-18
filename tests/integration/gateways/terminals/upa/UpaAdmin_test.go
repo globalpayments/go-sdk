@@ -1,12 +1,12 @@
 package upa
 
 import (
+	"github.com/globalpayments/go-sdk/api/services/deviceservice"
 	"strings"
 	"testing"
 
 	"github.com/globalpayments/go-sdk/api/entities/enums/connectionmodes"
 	"github.com/globalpayments/go-sdk/api/entities/enums/devicetype"
-	"github.com/globalpayments/go-sdk/api/services"
 	"github.com/globalpayments/go-sdk/api/terminals"
 	"github.com/globalpayments/go-sdk/api/terminals/abstractions"
 	"github.com/globalpayments/go-sdk/tests/integration/gateways/terminals/hpa"
@@ -23,7 +23,7 @@ func TestUpaAdminTests(t *testing.T) {
 	config.DeviceType = devicetype.UPA_DEVICE
 	config.ConnectionMode = connectionmodes.TCP_IP
 
-	device, err := services.DeviceServiceCreate(config)
+	device, err := deviceservice.DeviceServiceCreate(config)
 	if err != nil {
 		t.Errorf("Failed to create device with error: %s", err.Error())
 	}

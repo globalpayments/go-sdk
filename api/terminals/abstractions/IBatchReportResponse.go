@@ -1,9 +1,12 @@
 package abstractions
 
-import "github.com/globalpayments/go-sdk/api/entities"
+import (
+	"github.com/globalpayments/go-sdk/api/entities"
+	"github.com/globalpayments/go-sdk/api/entities/transactionsummary"
+)
 
 type IBatchReportResponse interface {
 	IDeviceResponse
 	GetBatchSummary() entities.BatchSummary
-	GetTransactionSummaries() []entities.TransactionSummary
+	GetTransactionSummaries() []transactionsummary.TransactionSummary
 }

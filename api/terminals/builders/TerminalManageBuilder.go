@@ -1,7 +1,8 @@
 package builders
 
 import (
-	"github.com/globalpayments/go-sdk/api/paymentmethods"
+	"context"
+	"github.com/globalpayments/go-sdk/api/paymentmethods/references"
 	"github.com/shopspring/decimal"
 
 	"github.com/globalpayments/go-sdk/api/entities/enums/currencytype"
@@ -61,10 +62,10 @@ func (builder *TerminalManageBuilder) WithTerminalRefNumber(value string) *Termi
 
 func (builder *TerminalManageBuilder) WithTransactionId(value string) *TerminalManageBuilder {
 	paymentMethod := builder.GetPaymentMethod()
-	if !paymentmethods.IsItATransactionReference(paymentMethod) {
-		paymentMethod = paymentmethods.NewTransactionReference()
+	if !references.IsItATransactionReference(paymentMethod) {
+		paymentMethod = references.NewTransactionReference()
 	}
-	tr := paymentMethod.(*paymentmethods.TransactionReference)
+	tr := paymentMethod.(*references.TransactionReference)
 	tr.SetTransactionId(value)
 	builder.SetPaymentMethod(tr)
 	builder.transactionId = value
@@ -77,16 +78,12 @@ func NewTerminalManageBuilder(transactionType transactiontype.TransactionType, p
 	}
 }
 
-func (builder *TerminalManageBuilder) Execute(device ITerminalBuilderDevice) (terminalresponse.ITerminalResponse, error) {
-	return builder.ExecuteWithName("default", device)
-}
-
-func (builder *TerminalManageBuilder) ExecuteWithName(configName string, device ITerminalBuilderDevice) (terminalresponse.ITerminalResponse, error) {
+func (builder *TerminalManageBuilder) ExecuteWithName(ctx context.Context, configName string, device ITerminalBuilderDevice) (terminalresponse.ITerminalResponse, error) {
 	if err := builder.TerminalBuilder.Execute(configName); err != nil {
 		return nil, err
 	}
 
-	return device.ManageTransaction(builder)
+	return device.ManageTransactionWithContext(ctx, builder)
 
 }
 

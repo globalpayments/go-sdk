@@ -1,20 +1,22 @@
 package builders
 
+import "github.com/globalpayments/go-sdk/api/builders/validations"
+
 type BaseBuilder struct {
-	Validations Validations
+	Validations validations.Validations
 }
 
 func NewBaseBuilder() *BaseBuilder {
 	return &BaseBuilder{
-		Validations: *NewValidations(),
+		Validations: *validations.NewValidations(),
 	}
 }
 
-func (b *BaseBuilder) GetValidations() Validations {
+func (b *BaseBuilder) GetValidations() validations.Validations {
 	return b.Validations
 }
 
-func (b *BaseBuilder) SetValidations(validations Validations) {
+func (b *BaseBuilder) SetValidations(validations validations.Validations) {
 	b.Validations = validations
 }
 

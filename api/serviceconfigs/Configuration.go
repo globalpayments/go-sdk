@@ -1,8 +1,7 @@
 package serviceconfigs
 
 import (
-	"net/url"
-
+	"github.com/globalpayments/go-sdk/api/entities/abstractions"
 	"github.com/globalpayments/go-sdk/api/entities/enums/environment"
 	"github.com/globalpayments/go-sdk/api/entities/enums/host"
 	"github.com/globalpayments/go-sdk/api/entities/enums/hosterror"
@@ -13,8 +12,8 @@ type Configuration struct {
 	EnableLogging       bool
 	RequestLogger       logging.IRequestLogger
 	Environment         environment.Environment
-	ServiceURL          string
-	WebProxy            *url.URL
+	ServiceUrl          string
+	WebProxy            abstractions.IWebProxy
 	SimulatedHostErrors map[host.Host][]hosterror.HostError
 	Timeout             int
 	Validated           bool
@@ -40,4 +39,8 @@ func (c *Configuration) SetTimeout(timeout int) {
 func (c *Configuration) Validate() error {
 	c.Validated = true
 	return nil
+}
+
+func (c *Configuration) IsValidated() bool {
+	return c.Validated
 }

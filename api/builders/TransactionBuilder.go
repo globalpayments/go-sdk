@@ -23,6 +23,7 @@ type TransactionBuilder struct {
 	description             string
 	issuerData              map[cardissuerentrytag.CardIssuerEntryTag]string
 	followOnStan            *int
+	posSequenceNumber       string
 	priorMessageInformation *networkentities.PriorMessageInformation
 	sequenceNumber          *int
 	systemTraceAuditNumber  *int
@@ -57,29 +58,24 @@ func NewTransactionBuilder(transactionType transactiontype.TransactionType, paym
 	}
 }
 
-func (builder *TransactionBuilder) WithServiceCode(serviceCode string) *TransactionBuilder {
+func (builder *TransactionBuilder) WithServiceCode(serviceCode string) {
 	builder.serviceCode = serviceCode
-	return builder
 }
 
-func (builder *TransactionBuilder) WithEcommerceAuthIndicator(ecommerceAuthIndicator string) *TransactionBuilder {
+func (builder *TransactionBuilder) WithEcommerceAuthIndicator(ecommerceAuthIndicator string) {
 	builder.ecommerceAuthIndicator = ecommerceAuthIndicator
-	return builder
 }
 
-func (builder *TransactionBuilder) WithEcommerceData1(ecommerceData1 string) *TransactionBuilder {
+func (builder *TransactionBuilder) WithEcommerceData1(ecommerceData1 string) {
 	builder.ecommerceData1 = ecommerceData1
-	return builder
 }
 
-func (builder *TransactionBuilder) WithEcommerceData2(ecommerceData2 string) *TransactionBuilder {
+func (builder *TransactionBuilder) WithEcommerceData2(ecommerceData2 string) {
 	builder.ecommerceData2 = ecommerceData2
-	return builder
 }
 
-func (builder *TransactionBuilder) WithZipCode(zipCode string) *TransactionBuilder {
+func (builder *TransactionBuilder) WithZipCode(zipCode string) {
 	builder.zipCode = zipCode
-	return builder
 }
 
 func (builder *TransactionBuilder) GetTransactionType() transactiontype.TransactionType {
@@ -154,39 +150,32 @@ func (builder *TransactionBuilder) IsTerminalError() bool {
 	return builder.terminalError
 }
 
-func (builder *TransactionBuilder) WithDescription(description string) *TransactionBuilder {
+func (builder *TransactionBuilder) WithDescription(description string) {
 	builder.description = description
-	return builder
 }
 
-func (builder *TransactionBuilder) WithIssuerData(issuerData map[cardissuerentrytag.CardIssuerEntryTag]string) *TransactionBuilder {
+func (builder *TransactionBuilder) WithIssuerData(issuerData map[cardissuerentrytag.CardIssuerEntryTag]string) {
 	builder.issuerData = issuerData
-	return builder
 }
 
-func (builder *TransactionBuilder) WithFollowOnStan(followOnStan *int) *TransactionBuilder {
+func (builder *TransactionBuilder) WithFollowOnStan(followOnStan *int) {
 	builder.followOnStan = followOnStan
-	return builder
 }
 
-func (builder *TransactionBuilder) WithSequenceNumber(sequenceNumber *int) *TransactionBuilder {
+func (builder *TransactionBuilder) WithSequenceNumber(sequenceNumber *int) {
 	builder.sequenceNumber = sequenceNumber
-	return builder
 }
 
-func (builder *TransactionBuilder) WithSystemTraceAuditNumber(systemTraceAuditNumber *int) *TransactionBuilder {
+func (builder *TransactionBuilder) WithSystemTraceAuditNumber(systemTraceAuditNumber *int) {
 	builder.systemTraceAuditNumber = systemTraceAuditNumber
-	return builder
 }
 
-func (builder *TransactionBuilder) WithUniqueDeviceId(uniqueDeviceId string) *TransactionBuilder {
+func (builder *TransactionBuilder) WithUniqueDeviceId(uniqueDeviceId string) {
 	builder.uniqueDeviceId = uniqueDeviceId
-	return builder
 }
 
-func (builder *TransactionBuilder) WithTransactionMatchingData(transactionMatchingData *networkentities.TransactionMatchingData) *TransactionBuilder {
+func (builder *TransactionBuilder) WithTransactionMatchingData(transactionMatchingData *networkentities.TransactionMatchingData) {
 	builder.transactionMatchingData = transactionMatchingData
-	return builder
 }
 
 func (builder *TransactionBuilder) SetTerminalError(terminalError bool) {
@@ -205,12 +194,21 @@ func (builder *TransactionBuilder) SetSurchargeAmount(surchargeAmount *decimal.D
 	builder.surchargeAmount = surchargeAmount
 }
 
-func (builder *TransactionBuilder) SetCashBackAmount(cashBackAmount *decimal.Decimal) {
+func (builder *TransactionBuilder) WithCashBackAmount(cashBackAmount *decimal.Decimal) {
 	builder.cashBackAmount = cashBackAmount
+	builder.transactionModifier = transactionmodifier.CashBack
 }
 
 func (builder *TransactionBuilder) SetInvoiceNumber(invoiceNumber string) {
 	builder.invoiceNumber = invoiceNumber
+}
+
+func (builder *TransactionBuilder) SetPosSequenceNumber(sn string) {
+	builder.posSequenceNumber = sn
+}
+
+func (builder *TransactionBuilder) GetPosSequenceNumber() string {
+	return builder.posSequenceNumber
 }
 
 func (builder *TransactionBuilder) SetCvn(cvn string) {

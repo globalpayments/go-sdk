@@ -3,6 +3,7 @@ package responses
 import (
 	"encoding/json"
 	"github.com/globalpayments/go-sdk/api/entities"
+	"github.com/globalpayments/go-sdk/api/entities/transactionsummary"
 	"github.com/globalpayments/go-sdk/api/utils"
 )
 
@@ -11,7 +12,7 @@ type UpaReportResponse struct {
 	DeviceResponseCode string
 	DeviceResponseText string
 	Status             string
-	Transactions       []entities.TransactionSummary
+	Transactions       []transactionsummary.TransactionSummary
 	TransactionType    string
 }
 
@@ -51,7 +52,7 @@ func NewUpaReportResponse(responseObj *utils.JsonDoc) *UpaReportResponse {
 				batchDetailRecords := batchRecord.GetArray("batchDetailRecords")
 				if batchDetailRecords != nil {
 					for _, n := range batchDetailRecords {
-						trans := entities.TransactionSummary{
+						trans := transactionsummary.TransactionSummary{
 							AmountDue:         n.GetDecimal("balanceDue"),
 							AuthCode:          n.GetString("approvalCode"),
 							AuthorizedAmount:  n.GetDecimal("authorizedAmount"),
@@ -78,7 +79,7 @@ func NewUpaReportResponse(responseObj *utils.JsonDoc) *UpaReportResponse {
 			openTabDetails := innerData.GetArray("OpenTabDetails")
 			if openTabDetails != nil {
 				for _, n := range openTabDetails {
-					trans := entities.TransactionSummary{
+					trans := transactionsummary.TransactionSummary{
 						AuthorizedAmount: n.GetDecimal("authorizedAmount"),
 						CardType:         n.GetString("cardType"),
 						ClerkId:          n.GetString("clerkId"),
@@ -110,7 +111,7 @@ func (res *UpaReportResponse) GetDeviceResponseText() string {
 	return res.DeviceResponseText
 }
 
-func (res *UpaReportResponse) GetTransactionSummaries() []entities.TransactionSummary {
+func (res *UpaReportResponse) GetTransactionSummaries() []transactionsummary.TransactionSummary {
 	return res.Transactions
 }
 

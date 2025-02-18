@@ -2,7 +2,7 @@ package responses
 
 import (
 	"encoding/json"
-	"github.com/globalpayments/go-sdk/api/entities"
+	"github.com/globalpayments/go-sdk/api/entities/transactionsummary"
 	"github.com/globalpayments/go-sdk/api/terminals/abstractions"
 	"github.com/globalpayments/go-sdk/api/terminals/upa/entities/enums/upasaftype"
 	"github.com/globalpayments/go-sdk/api/utils"
@@ -23,7 +23,7 @@ type UpaSafResponse struct {
 	TransactionType    string
 	MultipleMessage    *int
 	SafType            string
-	Transactions       []entities.TransactionSummary
+	Transactions       []transactionsummary.TransactionSummary
 	TransactionTime    string
 	HostTimeout        *int
 }
@@ -37,7 +37,7 @@ func NewUpaSafResponse(responseObj *utils.JsonDoc) *UpaSafResponse {
 	res.Approved = make([]abstractions.ISummaryResponse, 0)
 	res.Declined = make([]abstractions.ISummaryResponse, 0)
 	res.Pending = make([]abstractions.ISummaryResponse, 0)
-	res.Transactions = make([]entities.TransactionSummary, 0)
+	res.Transactions = make([]transactionsummary.TransactionSummary, 0)
 	if responseData != nil {
 		cmdResult := responseData.Get("cmdResult")
 		if cmdResult != nil {
@@ -70,10 +70,10 @@ func NewUpaSafResponse(responseObj *utils.JsonDoc) *UpaSafResponse {
 					summaryResponse := UpaSummaryResponse{}
 					summaryResponse.Amount = safDetail.GetDecimal("SafTotal")
 					summaryResponse.Count = safDetail.GetInt("SafCount")
-					summaryResponse.Transactions = make([]entities.TransactionSummary, 0)
+					summaryResponse.Transactions = make([]transactionsummary.TransactionSummary, 0)
 					if safDetail.GetArray("SafRecords") != nil {
 						for _, safRecord := range safDetail.GetArray("SafRecords") {
-							transactionSummary := entities.TransactionSummary{}
+							transactionSummary := transactionsummary.TransactionSummary{}
 							transactionSummary.SafTotal = safRecord.GetDecimal("totalAmount")
 							transactionSummary.AuthorizedAmount = safRecord.GetDecimal("authorizedAmount")
 							transactionSummary.TransactionId = safRecord.GetString("tranNo")
@@ -177,7 +177,7 @@ func (u *UpaSafResponse) GetSafType() string {
 	return u.SafType
 }
 
-func (u *UpaSafResponse) GetTransactions() []entities.TransactionSummary {
+func (u *UpaSafResponse) GetTransactions() []transactionsummary.TransactionSummary {
 	return u.Transactions
 }
 
@@ -242,7 +242,7 @@ func (u *UpaSafResponse) SetSafType(safType string) {
 	u.SafType = safType
 }
 
-func (u *UpaSafResponse) SetTransactions(transactions []entities.TransactionSummary) {
+func (u *UpaSafResponse) SetTransactions(transactions []transactionsummary.TransactionSummary) {
 	u.Transactions = transactions
 }
 
@@ -275,8 +275,8 @@ func mapSafType(safDetails string) string {
 	}
 }
 
-func parseDelSaf(innerData *utils.JsonDoc) *entities.TransactionSummary {
-	transactionSummary := &entities.TransactionSummary{}
+func parseDelSaf(innerData *utils.JsonDoc) *transactionsummary.TransactionSummary {
+	transactionSummary := &transactionsummary.TransactionSummary{}
 
 	if innerData.GetDecimal("tipAmount") != nil {
 		transactionSummary.SetGratuityAmount(innerData.GetDecimal("tipAmount"))

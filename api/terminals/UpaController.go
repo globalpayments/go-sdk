@@ -1,6 +1,7 @@
 package terminals
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -78,7 +79,7 @@ func (c *UpaController) SendWithouDisconnect(message abstractions.IDeviceMessage
 	return c.DeviceController.GetDeviceCommInterface().SendWithouDisconnect(message)
 }
 
-func (c *UpaController) DoTransaction(messageId upamessageid.UpaMessageId, requestId int, ecrId string, paramFields *subgroups.RequestParamFields, transactionFields *subgroups.RequestTransactionFields, processingIndicators *subgroups.RequestProcessingIndicatorsFields) (*responses.UpaTransactionResponse, error) {
+func (c *UpaController) DoTransaction(ctx context.Context, messageId upamessageid.UpaMessageId, requestId int, ecrId string, paramFields *subgroups.RequestParamFields, transactionFields *subgroups.RequestTransactionFields, processingIndicators *subgroups.RequestProcessingIndicatorsFields) (*responses.UpaTransactionResponse, error) {
 	body := utils.NewJsonDoc()
 
 	if paramFields.GetElementsJson() != nil {
@@ -94,32 +95,63 @@ func (c *UpaController) DoTransaction(messageId upamessageid.UpaMessageId, reque
 	}
 
 	requestIdAsString := fmt.Sprintf("%d", requestId)
-
 	deviceMessage, _ := terminalutilities.BuildMessage(messageId, requestIdAsString, ecrId, body)
 
-	resp, err := c.Send(deviceMessage)
-	if err != nil {
+	// Create a channel to receive the response or error
+	responseChan := make(chan *responses.UpaTransactionResponse)
+	errChan := make(chan error)
+
+	// Start a goroutine to send the message and process the response
+	go func() {
+		resp, err := c.Send(deviceMessage)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		responseObj, err := utils.ParseBytes(resp)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		data := responseObj.Get("data")
+		if data == nil {
+			errChan <- exceptions.NewApiException("Terminal response was malformed.")
+			return
+		}
+
+		responseChan <- responses.NewUpaTransactionResponse(data)
+	}()
+
+	// Wait for either the context to be done or the response to be received
+	select {
+	case <-ctx.Done():
+		// Context was cancelled, deadline exceeded, or timed out
+		c.device.Cancel()
+		return nil, fmt.Errorf("transaction cancelled: %w", ctx.Err())
+	case resp := <-responseChan:
+		return resp, nil
+	case err := <-errChan:
 		msg := err.Error()
 		if msg == "Terminal did not respond in the given timeout." {
 			c.device.Cancel()
 		}
 		return nil, err
 	}
-
-	responseObj, err := utils.ParseBytes(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	data := responseObj.Get("data")
-	if data == nil {
-		return nil, exceptions.NewApiException("Terminal response was malformed.")
-	}
-
-	return responses.NewUpaTransactionResponse(data), nil
 }
 
 func (c *UpaController) ProcessTransaction(builder *builders.TerminalAuthBuilder) (terminalresponse.ITerminalResponse, error) {
+	ctx := context.Background()
+	return c.ProcessTransactionWithContext(ctx, builder)
+}
+
+func (c *UpaController) ManageTransaction(builder *builders.TerminalManageBuilder) (terminalresponse.ITerminalResponse, error) {
+	ctx := context.Background()
+	return c.ManageTransactionWithContext(ctx, builder)
+}
+
+func (c *UpaController) ProcessTransactionWithContext(ctx context.Context, builder *builders.TerminalAuthBuilder) (terminalresponse.ITerminalResponse, error) {
 	messageId, err := c.MapTransactionType(builder.GetTransactionType())
 	if err != nil {
 		return nil, err
@@ -134,7 +166,7 @@ func (c *UpaController) ProcessTransaction(builder *builders.TerminalAuthBuilder
 	requestTransactionFields.SetAuthBuilderParams(builder)
 
 	processingIndicators := subgroups.NewRequestProcessingIndicatorsFields()
-	return c.DoTransaction(messageId, requestId, builder.EcrId, requestParamFields, requestTransactionFields, processingIndicators)
+	return c.DoTransaction(ctx, messageId, requestId, builder.EcrId, requestParamFields, requestTransactionFields, processingIndicators)
 }
 
 func (c *UpaController) MapTransactionType(transactionType transactiontype.TransactionType) (upamessageid.UpaMessageId, error) {
@@ -164,7 +196,7 @@ func (c *UpaController) MapTransactionType(transactionType transactiontype.Trans
 	}
 }
 
-func (c *UpaController) ManageTransaction(builder *builders.TerminalManageBuilder) (terminalresponse.ITerminalResponse, error) {
+func (c *UpaController) ManageTransactionWithContext(ctx context.Context, builder *builders.TerminalManageBuilder) (terminalresponse.ITerminalResponse, error) {
 	messageId, err := c.MapTransactionType(builder.GetTransactionType())
 	if err != nil {
 		return nil, err
@@ -178,6 +210,6 @@ func (c *UpaController) ManageTransaction(builder *builders.TerminalManageBuilde
 	requestTransactionFields := subgroups.NewRequestTransactionFields()
 	requestTransactionFields.SetManageBuilderParams(builder)
 
-	return c.DoTransaction(messageId, requestId, builder.EcrId, requestParamFields, requestTransactionFields, nil)
+	return c.DoTransaction(ctx, messageId, requestId, builder.EcrId, requestParamFields, requestTransactionFields, nil)
 
 }

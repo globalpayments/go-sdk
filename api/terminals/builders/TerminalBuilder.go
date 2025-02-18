@@ -4,7 +4,6 @@ import (
 	"github.com/globalpayments/go-sdk/api/builders"
 	"github.com/globalpayments/go-sdk/api/entities/enums/paymentmethodtype"
 	"github.com/globalpayments/go-sdk/api/entities/enums/transactiontype"
-	"github.com/globalpayments/go-sdk/api/paymentmethods/abstractions"
 )
 
 type TerminalBuilder struct {
@@ -52,8 +51,9 @@ func (tb *TerminalBuilder) WithRequestId(value *int) *TerminalBuilder {
 	return tb
 }
 
-func NewTerminalBuilder(transactionType transactiontype.TransactionType, paymentMethod abstractions.IPaymentMethod) *TerminalBuilder {
+func NewTerminalBuilder(transactionType transactiontype.TransactionType, paymentMethod paymentmethodtype.PaymentMethodType) *TerminalBuilder {
 	return &TerminalBuilder{
-		TransactionBuilder: builders.NewTransactionBuilder(transactionType, paymentMethod),
+		TransactionBuilder: builders.NewTransactionBuilder(transactionType, nil),
+		paymentMethodType:  paymentMethod,
 	}
 }

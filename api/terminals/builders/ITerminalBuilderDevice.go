@@ -1,8 +1,11 @@
 package builders
 
-import "github.com/globalpayments/go-sdk/api/terminals/terminalresponse"
+import (
+	"context"
+	"github.com/globalpayments/go-sdk/api/terminals/terminalresponse"
+)
 
 type ITerminalBuilderDevice interface {
-	ManageTransaction(tmb *TerminalManageBuilder) (terminalresponse.ITerminalResponse, error)
-	ProcessTransaction(tab *TerminalAuthBuilder) (terminalresponse.ITerminalResponse, error)
+	ManageTransactionWithContext(ctx context.Context, tmb *TerminalManageBuilder) (terminalresponse.ITerminalResponse, error)
+	ProcessTransactionWithContext(ctx context.Context, tab *TerminalAuthBuilder) (terminalresponse.ITerminalResponse, error)
 }

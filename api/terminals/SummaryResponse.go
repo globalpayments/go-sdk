@@ -1,8 +1,8 @@
 package terminals
 
 import (
-	"github.com/globalpayments/go-sdk/api/entities"
 	"github.com/globalpayments/go-sdk/api/entities/enums/summarytype"
+	"github.com/globalpayments/go-sdk/api/entities/transactionsummary"
 	"github.com/shopspring/decimal"
 )
 
@@ -13,12 +13,12 @@ type SummaryResponse struct {
 	Count            *int
 	SummaryType      summarytype.SummaryType
 	TotalAmount      *decimal.Decimal
-	Transactions     []entities.TransactionSummary
+	Transactions     []transactionsummary.TransactionSummary
 }
 
 func NewSummaryResponse() *SummaryResponse {
 	return &SummaryResponse{
-		Transactions: make([]entities.TransactionSummary, 0),
+		Transactions: make([]transactionsummary.TransactionSummary, 0),
 	}
 }
 
@@ -46,6 +46,6 @@ func (s *SummaryResponse) GetTotalAmount() *decimal.Decimal {
 	return s.TotalAmount
 }
 
-func (s *SummaryResponse) GetTransactions() []entities.TransactionSummary {
+func (s *SummaryResponse) GetTransactions() []transactionsummary.TransactionSummary {
 	return s.Transactions
 }

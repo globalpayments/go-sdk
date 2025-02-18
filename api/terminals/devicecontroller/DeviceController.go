@@ -1,6 +1,7 @@
 package devicecontroller
 
 import (
+	"context"
 	"github.com/globalpayments/go-sdk/api/entities/enums/connectionmodes"
 	"github.com/globalpayments/go-sdk/api/entities/enums/devicetype"
 	"github.com/globalpayments/go-sdk/api/terminals/abstractions"
@@ -15,6 +16,8 @@ type IDeviceController interface {
 	ConfigureInterface() abstractions.IDeviceInterface
 	ProcessTransaction(builder *builders.TerminalAuthBuilder) (terminalresponse.ITerminalResponse, error)
 	ManageTransaction(builder *builders.TerminalManageBuilder) (terminalresponse.ITerminalResponse, error)
+	ProcessTransactionWithContext(ctx context.Context, builder *builders.TerminalAuthBuilder) (terminalresponse.ITerminalResponse, error)
+	ManageTransactionWithContext(ctx context.Context, builder *builders.TerminalManageBuilder) (terminalresponse.ITerminalResponse, error)
 	GetSettings() abstractions.ITerminalConfiguration
 	SetSettings(settings abstractions.ITerminalConfiguration)
 	GetDeviceCommInterface() abstractions.IDeviceCommInterface

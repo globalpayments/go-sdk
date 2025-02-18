@@ -20,6 +20,10 @@ type BatchSummary struct {
 	OpenTransactionId string
 }
 
+func NewBatchSummary() *BatchSummary {
+	return &BatchSummary{}
+}
+
 // SetId sets the batch's Id.
 func (b *BatchSummary) SetId(id *int) {
 	b.BatchId = id

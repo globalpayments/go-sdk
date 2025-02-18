@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/araddon/dateparse"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/shopspring/decimal"
 )
@@ -144,13 +146,13 @@ func ToCurrencyString(amount *decimal.Decimal) string {
 		dollars = dollars[1:]
 	}
 	for i := len(dollars) - 1; i >= 0; i-- {
-		if (len(dollars)-i)%3 == 0 && i != len(dollars)-1 {
-			buf.WriteRune(',')
-		}
+		//if (len(dollars)-i)%3 == 0 && i != len(dollars)-1 {
+		//	buf.WriteRune(',')
+		//}
 		buf.WriteRune(rune(dollars[i]))
 	}
 	dollarsStr := reverseString(buf.String())
-	return fmt.Sprintf("$%s.%s", dollarsStr, cents)
+	return fmt.Sprintf("%s.%s", dollarsStr, cents)
 }
 
 func reverseString(str string) string {
@@ -159,4 +161,36 @@ func reverseString(str string) string {
 		runes[i], runes[j] = runes[j], runes[i]
 	}
 	return string(runes)
+}
+
+func BoolToString(b bool) string {
+	if b {
+		return "Y"
+	} else {
+		return "N"
+	}
+}
+
+func IntToString(i int) string {
+	return strconv.Itoa(i)
+}
+
+func StringToIntPointer(s string) *int {
+	res, err := strconv.Atoi(s)
+	if err != nil {
+		return nil
+	}
+	return &res
+}
+
+func DateStringFormatted(d string, format string) string {
+	t, err := dateparse.ParseAny(d)
+	if err != nil {
+		return ""
+	}
+	return t.Format(format)
+}
+
+func ToStandardDateString(d time.Time) string {
+	return d.Format(time.RFC3339)
 }

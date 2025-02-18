@@ -2,8 +2,10 @@ package enumutils
 
 import (
 	"github.com/globalpayments/go-sdk/api/entities/enums/ibyteconstant"
+	"github.com/globalpayments/go-sdk/api/entities/enums/imappedconstant"
 	"github.com/globalpayments/go-sdk/api/entities/enums/inumericconstant"
 	"github.com/globalpayments/go-sdk/api/entities/enums/istringconstant"
+	"github.com/globalpayments/go-sdk/api/entities/enums/target"
 )
 
 func (mapper *ReverseByteEnumMap) Get(value byte) ibyteconstant.IByteConstant {
@@ -27,4 +29,8 @@ func ParseStringConstant(valueType istringconstant.IStringConstant, value string
 func ParseNumericConstant(valueType inumericconstant.INumericConstant, value int) inumericconstant.INumericConstant {
 	mapper := NewReverseIntEnumMap(valueType)
 	return mapper.Get(value)
+}
+
+func GetMapping(t target.Target, v imappedconstant.IMappedConstant) string {
+	return v.GetValue(t)
 }

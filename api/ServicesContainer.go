@@ -2,9 +2,10 @@ package api
 
 import (
 	"fmt"
+	abstractions2 "github.com/globalpayments/go-sdk/api/abstractions"
+	apiabstractions "github.com/globalpayments/go-sdk/api/serviceconfigs/abstractions"
 	"sync"
 
-	apiabstractions "github.com/globalpayments/go-sdk/api/abstractions"
 	"github.com/globalpayments/go-sdk/api/configuredservices"
 	"github.com/globalpayments/go-sdk/api/entities/exceptions"
 	"github.com/globalpayments/go-sdk/api/terminals/abstractions"
@@ -39,6 +40,13 @@ func (sc *ServicesContainer) GetDeviceController(configName string) (devicecontr
 		return config.GetDeviceController(), nil
 	}
 	return nil, exceptions.NewApiException("The specified configuration has not been configured for terminal interaction.")
+}
+
+func (sc *ServicesContainer) GetGateway(configName string) (abstractions2.IPaymentGateway, error) {
+	if config, ok := sc.configurations[configName]; ok {
+		return config.GetGateway(), nil
+	}
+	return nil, exceptions.NewApiException("The specified configuration has not been configured for gateway interaction.")
 }
 
 func Configure(config *ServicesConfig) error {

@@ -2,6 +2,7 @@ package hpa
 
 import (
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -15,4 +16,8 @@ func NewRandomIdProvider() *RandomIdProvider {
 
 func (r *RandomIdProvider) GetRequestId() int {
 	return 100000 + r.random.Intn(999999)
+}
+
+func (r *RandomIdProvider) GetRequestIdString() string {
+	return strconv.Itoa(r.GetRequestId())
 }

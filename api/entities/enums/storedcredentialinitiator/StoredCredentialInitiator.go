@@ -7,6 +7,7 @@ import (
 type StoredCredentialInitiator string
 
 const (
+	Nil         StoredCredentialInitiator = ""
 	CardHolder  StoredCredentialInitiator = "cardholder"
 	Merchant    StoredCredentialInitiator = "merchant"
 	Scheduled   StoredCredentialInitiator = "scheduled"

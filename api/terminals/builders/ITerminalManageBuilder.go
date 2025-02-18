@@ -1,6 +1,7 @@
 package builders
 
 import (
+	"context"
 	"github.com/shopspring/decimal"
 
 	"github.com/globalpayments/go-sdk/api/entities/enums/currencytype"
@@ -17,7 +18,6 @@ type ITerminalManageBuilder interface {
 	WithCurrency(value currencytype.CurrencyType) *TerminalManageBuilder
 	WithGratuity(value *decimal.Decimal) *TerminalManageBuilder
 	WithTerminalRefNumber(value string) *TerminalManageBuilder
-	Execute(device ITerminalBuilderDevice) (terminalresponse.ITerminalResponse, error)
-	ExecuteWithName(configName string, device ITerminalBuilderDevice) (terminalresponse.ITerminalResponse, error)
+	ExecuteWithName(ctx context.Context, configName string, device ITerminalBuilderDevice) (terminalresponse.ITerminalResponse, error)
 	SetupValidations()
 }

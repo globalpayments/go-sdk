@@ -25,7 +25,6 @@ type ConnectionConfig struct {
 	Port              int
 	DeviceType        devicetype.DeviceType
 	RequestIdProvider abstractions.IRequestIdProvider
-	validated         bool
 }
 
 func NewConnectionConfig() *ConnectionConfig {
@@ -90,7 +89,7 @@ func (c *ConnectionConfig) ConfigureContainer(services *configuredservices.Confi
 }
 
 func (c ConnectionConfig) IsValidated() bool {
-	return c.validated
+	return c.Validated
 }
 
 func (c *ConnectionConfig) Validate() error {
@@ -102,6 +101,6 @@ func (c *ConnectionConfig) Validate() error {
 			return exceptions.NewConfigurationException("Port is required for TCP or HTTP communication modes.")
 		}
 	}
-	c.validated = true
+	c.Validated = true
 	return nil
 }
