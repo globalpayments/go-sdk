@@ -1,6 +1,6 @@
 # Changelog
 
-## Latest - v2.0.1 (2/14/25):
+## Latest - v1.1.2 (2/20/25):
 
 ### Enhancements:
 
